@@ -76,7 +76,7 @@ Real environment variables override `.env`.
 cd vms-backend
 ./mvnw spring-boot:run          # Windows: mvnw.cmd spring-boot:run
 ```
-API: `http://localhost:9001` · Health check: `http://localhost:9001/actuator/health` → `{"status":"UP",...}`
+API: `http://localhost:9001` (or `PORT`) · Health check: `http://localhost:9001/actuator/health` → `{"status":"UP",...}`
 
 ### 4. Start the frontend
 ```bash
@@ -130,17 +130,30 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:9001/api/vehicles
 ```
 
 ## Deployment
-**Backend** (e.g. Render web service, root directory `vms-backend`)
-- Build: `./mvnw -DskipTests package` · Start: `java -jar target/vms-backend-0.0.1-SNAPSHOT.jar`
-- Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` and
-  `CORS_ALLOWED_ORIGINS=https://<your-frontend-url>` as environment variables. Port `9001` is the
-  default (`server.port`); set `SERVER_PORT` if the host requires a specific port.
+**Backend** (Render → New → Web Service → this repo)
+- **Root directory** `vms-backend`, **Language/Runtime** `Docker` (Render has no native Java runtime; the
+  [`Dockerfile`](vms-backend/Dockerfile) builds with the Maven wrapper and runs on Java 21).
+- **Health check path** `/actuator/health`. The port comes from Render's `PORT` variable automatically.
+- **Database:** Render only hosts PostgreSQL, so use a hosted **MySQL 8** (e.g. Aiven, Railway) and create
+  the `vms_app` user/grants from the setup SQL above. Flyway creates the tables on first start.
+- **Environment variables** (Render → Environment; never in the repo):
+
+  | Variable | Production value |
+  |---|---|
+  | `DB_URL` | `jdbc:mysql://<host>:<port>/<database>?sslMode=REQUIRED` |
+  | `DB_USERNAME` / `DB_PASSWORD` | the hosted database login |
+  | `JWT_SECRET` | a **new** random value, 32+ characters |
+  | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | the first production login (**new** password, 12+ characters) |
+  | `CORS_ALLOWED_ORIGINS` | the frontend URL only, e.g. `https://stark-vms-lpco.netlify.app` |
+
+  Free instances sleep when idle: the first request after a pause can take about a minute.
 
 **Frontend** (any static host, root directory `vms_stark`)
 ```bash
 flutter build web --release --dart-define=API_BASE_URL=https://<your-backend-url>
 ```
-Publish the `build/web` folder. The API URL is compiled into the app and is public — never put secrets in a `--dart-define`.
+Publish the `build/web` folder. On Netlify this is automatic: [`netlify.toml`](netlify.toml) builds `vms_stark/`;
+set only `API_BASE_URL` in Netlify. The API URL is compiled into the app and is public — never put secrets in a `--dart-define`.
 
 ## Tests
 ```bash

@@ -1,0 +1,6 @@
+# Never send local secrets or build output into a Docker image.
+.env
+.env.*
+target/
+.idea/
+*.iml
