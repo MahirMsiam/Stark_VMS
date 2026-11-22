@@ -1,0 +1,12 @@
+# Netlify deploys the Flutter Web frontend (vms_stark/) from this repo. The backend deploys elsewhere.
+# Netlify has no Flutter preinstalled, so the build installs the pinned version first.
+# Set API_BASE_URL in Netlify (Site configuration -> Environment variables), e.g. https://<your-backend>.onrender.com
+# It is public (compiled into the app): never put passwords, keys or database settings in Netlify for this site.
+
+[build]
+  base = "vms_stark"
+  publish = "build/web"
+  command = "bash netlify-build.sh"
+
+[build.environment]
+  FLUTTER_VERSION = "3.50.1"

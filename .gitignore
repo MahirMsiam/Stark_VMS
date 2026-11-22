@@ -3,6 +3,7 @@
 /*
 !/.gitignore
 !/README.md
+!/netlify.toml
 !/vms_stark/
 !/vms-backend/
 
