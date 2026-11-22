@@ -1,0 +1,22 @@
+# Stark_VMS repository: publish only the two applications and the root README.
+# Everything else in this folder (course materials, zips, screenshots) stays local.
+/*
+!/.gitignore
+!/README.md
+!/vms_stark/
+!/vms-backend/
+
+# Frontend is deployed as a web app: native platform folders are not needed.
+/vms_stark/android/
+/vms_stark/ios/
+/vms_stark/linux/
+/vms_stark/macos/
+/vms_stark/windows/
+# Stray files that are not part of the Flutter project.
+/vms_stark/build.gradle
+/vms_stark/.gradle/
+
+# Secrets and machine-local files, also excluded here as a safety net.
+.env
+.env.*
+!.env.example
